@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish Species, Gender & Disease Analyzer</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f0f8ff; /* Light blue background */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0066cc, #00ccff);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            max-width: 900px;
+        }
+        
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 6px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            border: none;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #0099ff, #66ccff);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0066cc, #0099ff);
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0099ff, #00ccff);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+        
+        .fish-icon {
+            height: 2.5rem;
+            margin-right: 10px;
+        }
+        
+        #video-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+        
+        #video {
+            width: 100%;
+            border-radius: 10px;
+            transform: scaleX(-1); /* Mirror the video */
+        }
+        
+        #canvas {
+            display: none;
+        }
+        
+        .capture-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        
+        .tab-content {
+            padding: 20px 0;
+        }
+        
+        .result-img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .confidence-meter {
+            height: 10px;
+            border-radius: 5px;
+            background-color: #e9ecef;
+            margin-bottom: 20px;
+        }
+        
+        .confidence-level {
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(to right, #ff3300, #ff9900, #33cc33);
+        }
+        
+        .footer {
+            background-color: #333;
+            color: white;
+            padding: 20px 0;
+            margin-top: 40px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .treatment-card {
+            border-left: 4px solid #0099ff;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: rgba(0, 153, 255, 0.1);
+            border-radius: 0 5px 5px 0;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="container">
+            <div class="d-flex align-items-center">
+                <svg class="fish-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                    <path fill="white" d="M256 1.1c-28.9 0-56.9 5.2-83.2 14.6-27.8 10-53 25.1-74.5 43.9-43 37.5-68.3 90.7-68.3 148.3 0 57.6 25.3 110.8 68.3 148.3 21.5 18.8 46.7 33.8 74.5 43.9 26.3 9.4 54.3 14.6 83.2 14.6s56.9-5.2 83.2-14.6c27.8-10 53-25.1 74.5-43.9 43-37.5 68.3-90.7 68.3-148.3 0-57.6-25.3-110.8-68.3-148.3-21.5-18.8-46.7-33.8-74.5-43.9-26.3-9.4-54.3-14.6-83.2-14.6zm0 30c110.5 0 200 85.3 200 195.9 0 110.5-89.5 195.9-200 195.9-110.5 0-200-85.3-200-195.9 0-110.5 89.5-195.9 200-195.9zm-65.2 84.5c-16.7 0-30.3 13.6-30.3 30.3 0 16.7 13.6 30.3 30.3 30.3 16.7 0 30.3-13.6 30.3-30.3 0-16.7-13.6-30.3-30.3-30.3z"/>
+                </svg>
+                <h1>Fish Analyzer</h1>
+            </div>
+            <p class="lead">Identify fish species, gender, diseases, and get treatment recommendations</p>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="container">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Fish Analyzer</h5>
+                    <p>A tool for aquarium and fish farm enthusiasts to identify and treat fish diseases.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; 2025 Fish Health Monitoring System</p>
+                    <p>Powered by TensorFlow and Flask</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

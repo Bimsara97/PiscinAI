@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Analysis Results</h2>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h4>Fish Image</h4>
+                <img src="{{ image_path }}" alt="Analyzed Fish" class="result-img img-fluid">
+            </div>
+            <div class="col-md-6">
+                <h4>Disease Identification</h4>
+                <div class="alert {% if result.disease == 'Healthy Fish' %}alert-success{% else %}alert-warning{% endif %}">
+                    <h5>{{ result.disease }}</h5>
+                    <div class="confidence-meter">
+                        <div class="confidence-level" style="width: {{ result.confidence }}%;"></div>
+                    </div>
+                    <p>Confidence: {{ "%.2f"|format(result.confidence) }}%</p>
+                </div>
+
+                <h4 class="mt-4">Treatment Recommendations</h4>
+                {% if result.disease == 'Healthy Fish' %}
+                    <div class="alert alert-success">
+                        <p>Your fish appears to be healthy. Continue with regular care and monitoring.</p>
+                    </div>
+                {% else %}
+                    <div class="mb-3">
+                        <p>Based on the detected condition, we recommend the following:</p>
+                        {% for treatment in result.treatments %}
+                            <div class="treatment-card">
+                                <p class="mb-0">{{ treatment }}</p>
+                            </div>
+                        {% endfor %}
+                        <div class="alert alert-info mt-3">
+                            <p class="mb-0"><strong>Note:</strong> Always consult with a fish veterinarian or aquatic specialist for accurate diagnosis and treatment.</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12 text-center">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">Analyze Another Fish</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h2>About {{ result.disease }}</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-12">
+                {% if result.disease == 'Bacterial Red disease' %}
+                    <p>Bacterial Red disease (Hemorrhagic septicemia) is caused by various bacteria such as Aeromonas or Pseudomonas. It's characterized by red streaks or spots on the fish's body, fins, and gills.</p>
+                    <h5>Common Symptoms:</h5>
+                    <ul>
+                        <li>Red streaks or spots on the body and fins</li>
+                        <li>Inflammation and redness around the gills</li>
+                        <li>Lethargy and loss of appetite</li>
+                        <li>Frayed or deteriorating fins</li>
+                    </ul>
+
+                {% elif result.disease == 'Bacterial diseases - Aeromoniasis' %}
+                    <p>Aeromoniasis is caused by Aeromonas bacteria, which are common in aquatic environments. This opportunistic pathogen often attacks fish with weakened immune systems.</p>
+                    <h5>Common Symptoms:</h5>
+                    <ul>
+                        <li>Ulcers or open sores on the body</li>
+                        <li>Dropsy (swollen abdomen)</li>
+                        <li>Red, inflamed areas on the skin</li>
+                        <li>Fin rot and tail rot</li>
+                        <li>Lethargy and loss of appetite</li>
+                    </ul>
+
+                {% elif result.disease == 'Bacterial gill disease' %}
+                    <p>Bacterial gill disease (BGD) primarily affects the gill tissue of fish, caused by bacteria like Flavobacterium branchiophilum. It can be particularly problematic in high-density aquaculture settings.</p>
+                    <h5>Common Symptoms:</h5>
+                    <ul>
+                        <li>Rapid gill movement/breathing</li>
+                        <li>Swollen, pale, or mucus-covered gills</li>
+                        <li>Fish gasping at water surface</li>
+                        <li>Lethargy and poor appetite</li>
+                        <li>Gills may appear clubbed or fused</li>
+                    </ul>
+
+                {% elif result.disease == 'Fungal diseases Saprolegniasis' %}
+                    <p>Saprolegniasis is a common fungal infection caused by water molds of the Saprolegnia genus. It typically appears as cotton-like growths on the fish's body, fins, or eggs.</p>
+                    <h5>Common Symptoms:</h5>
+                    <ul>
+                        <li>White, cotton-like growth on skin, fins, or mouth</li>
+                        <li>Lethargy and loss of appetite</li>
+                        <li>Discolored patches on skin</li>
+                        <li>Affected areas may become ulcerated</li>
+                    </ul>
+
+                {% elif result.disease == 'Healthy Fish' %}
+                    <p>Your fish appears to be healthy with no visible signs of disease or distress.</p>
+                    <h5>Characteristics of a Healthy Fish:</h5>
+                    <ul>
+                        <li>Clear, bright eyes</li>
+                        <li>Intact, undamaged fins</li>
+                        <li>Smooth, unblemished scales and skin</li>
+                        <li>Normal swimming behavior</li>
+                        <li>Good appetite</li>
+                        <li>Vibrant coloration</li>
+                        <li>Regular breathing (not gasping or rapid gill movement)</li>
+                    </ul>
+
+                {% elif result.disease == 'Parasitic diseases' %}
+                    <p>Parasitic diseases in fish can be caused by various parasites including protozoans, worms, crustaceans, and others. Common parasitic diseases include Ich (white spot disease), flukes, anchor worms, and fish lice.</p>
+                    <h5>Common Symptoms:</h5>
+                    <ul>
+                        <li>White spots on body, fins, or gills (Ich)</li>
+                        <li>Visible parasites attached to body</li>
+                        <li>Scratching against objects in tank (flashing)</li>
+                        <li>Excessive mucus production</li>
+                        <li>Clamped fins or abnormal swimming</li>
+                        <li>Lethargy and loss of appetite</li>
+                    </ul>
+
+                {% elif result.disease == 'Viral diseases White tail disease' %}
+                    <p>White tail disease is a viral infection that primarily affects shrimp and some fish species. It's caused by Macrobrachium rosenbergii nodavirus (MrNV) and extra small virus (XSV).</p>
+                    <h5>Common Symptoms:</h5>
+                    <ul>
+                        <li>Whitish coloration of tail and abdominal segments</li>
+                        <li>Lethargy and abnormal swimming</li>
+                        <li>Reduced feeding and growth</li>
+                        <li>Muscle opacity and necrosis</li>
+                        <li>High mortality rates in juveniles</li>
+                    </ul>
+
+                {% else %}
+                    <p>Information about this condition is limited. Please consult with a fish health specialist for more details.</p>
+                {% endif %}
+
+                <div class="alert alert-warning mt-3">
+                    <p><strong>Disclaimer:</strong> This analysis is based on visual assessment only and should not replace professional veterinary advice. For accurate diagnosis and treatment, please consult with a qualified fish health specialist or veterinarian.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Analyze Your Fish</h2>
+    </div>
+    <div class="card-body">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="upload-tab" data-bs-toggle="tab" data-bs-target="#upload-tab-pane" type="button" role="tab" aria-controls="upload-tab-pane" aria-selected="true">Upload Image</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="camera-tab" data-bs-toggle="tab" data-bs-target="#camera-tab-pane" type="button" role="tab" aria-controls="camera-tab-pane" aria-selected="false">Take Photo</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="myTabContent">
+            <!-- Upload Image Tab -->
+            <div class="tab-pane fade show active" id="upload-tab-pane" role="tabpanel" aria-labelledby="upload-tab" tabindex="0">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>Upload a Fish Image</h4>
+                        <p>Upload a clear image of your fish to identify its species, gender, and detect potential diseases. For best results:</p>
+                        <ul>
+                            <li>Use good lighting</li>
+                            <li>Position the fish centrally in the frame</li>
+                            <li>Capture a clear side view of the fish</li>
+                            <li>Make sure the image shows any visible symptoms</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" class="p-4 bg-light rounded">
+                            <div class="mb-3">
+                                <label for="file" class="form-label">Select image file:</label>
+                                <input class="form-control" type="file" id="file" name="file" accept=".jpg,.jpeg,.png" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Analyze Image</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Take Photo Tab -->
+            <div class="tab-pane fade" id="camera-tab-pane" role="tabpanel" aria-labelledby="camera-tab" tabindex="0">
+                <div class="row">
+                    <div class="col-md-12 text-center mb-3">
+                        <h4>Take a Photo of Your Fish</h4>
+                        <p>Position your fish in front of the camera and take a clear photo.</p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="video-container" class="mb-4">
+                            <video id="video" autoplay playsinline></video>
+                            <button id="capture-btn" class="btn btn-primary btn-lg capture-btn">Take Photo</button>
+                        </div>
+                        <canvas id="canvas"></canvas>
+                    </div>
+                </div>
+                
+                <form id="capture-form" action="{{ url_for('capture') }}" method="post" class="d-none">
+                    <input type="hidden" name="image_data" id="image-data">
+                    <button type="submit" id="submit-capture" class="btn btn-success w-100">Analyze Captured Image</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>About This Tool</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Features</h4>
+                <ul>
+                    <li>Fish Species Identification</li>
+                    <li>Fish Gender Classification</li>
+                    <li>Disease Detection</li>
+                    <li>Treatment Recommendations</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h4>How It Works</h4>
+                <p>This application uses deep learning models trained on thousands of fish images. It can identify common freshwater fish species, determine gender, detect various diseases, and provide appropriate treatment recommendations.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Camera tab functionality
+        const videoElement = document.getElementById('video');
+        const canvasElement = document.getElementById('canvas');
+        const captureButton = document.getElementById('capture-btn');
+        const imageDataInput = document.getElementById('image-data');
+        const captureForm = document.getElementById('capture-form');
+        const submitCaptureButton = document.getElementById('submit-capture');
+        const context = canvasElement.getContext('2d');
+        
+        // Only initialize camera when the camera tab is selected
+        document.getElementById('camera-tab').addEventListener('click', initCamera);
+        
+        function initCamera() {
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function(stream) {
+                        videoElement.srcObject = stream;
+                    })
+                    .catch(function(error) {
+                        console.error('Could not access the camera: ', error);
+                        alert('Could not access the camera. Please make sure you have granted camera permission and are using a secure connection (HTTPS).');
+                    });
+            } else {
+                alert('Sorry, your browser does not support camera access.');
+            }
+        }
+        
+        // Set canvas dimensions based on video feed
+        videoElement.addEventListener('loadedmetadata', function() {
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+        });
+        
+        // Capture image
+        captureButton.addEventListener('click', function() {
+            // Draw video frame to canvas
+            context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+            
+            // Convert canvas to image data
+            const imageData = canvasElement.toDataURL('image/jpeg');
+            
+            // Set image data to form input
+            imageDataInput.value = imageData;
+            
+            // Show submit button and hide capture button
+            captureForm.classList.remove('d-none');
+            captureButton.classList.add('d-none');
+            
+            // Stop video stream
+            if (videoElement.srcObject) {
+                videoElement.srcObject.getTracks().forEach(track => track.stop());
+            }
+            
+            // Hide video and show captured image
+            videoElement.style.display = 'none';
+            canvasElement.style.display = 'block';
+        });
+    });
+</script>
+{% endblock %}
